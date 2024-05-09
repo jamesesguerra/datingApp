@@ -1,10 +1,9 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
 
-import { User } from '../models/user';
 import { AccountService } from '../services/account.service';
-import { of } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-nav',
@@ -14,7 +13,11 @@ import { of } from 'rxjs';
 export class NavComponent implements OnInit {
   @ViewChild("loginForm") loginForm!: NgForm;
 
-  constructor(public accountService: AccountService) {}
+  constructor(
+    public accountService: AccountService,
+    private router: Router,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
   }
@@ -22,11 +25,13 @@ export class NavComponent implements OnInit {
   login() {
     this.accountService.login(this.loginForm.value)
       .subscribe({
-        error: error => console.log(error)
+        next: () => this.router.navigateByUrl("/members"),
+        error: error => this.toastr.error(error.error)
       });
   }
 
   logout() {
     this.accountService.logout();
+    this.router.navigateByUrl("/");
   }
 }
